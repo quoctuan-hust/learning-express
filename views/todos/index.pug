@@ -1,0 +1,7 @@
+ul
+  each todo in todos
+    li= todo.work
+    
+form(action="/todos/search",method="GET")
+  input(type="text",name="q")
+  button Search
