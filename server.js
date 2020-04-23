@@ -1,6 +1,15 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+// Cau hinh lowdb
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('db.json');
+const db = low(adapter);
+
+// Set some defaults (required if your JSON file is empty)
+db.defaults({ todos: [] })
+  .write();
 
 // Cau hinh cho pug
 app.set('view engine', 'pug');
@@ -11,12 +20,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Code
-var todos =[
-      {id: 1, work: 'Nau com'},
-      {id: 2, work: 'Rua bat'},
-      {id: 3, work: 'Hoc code'},
-    ]
-
+let todos = db.get('todos').value();
 
 app.get('/', (req,res) => {
   res.render('index');
@@ -24,7 +28,7 @@ app.get('/', (req,res) => {
 
 app.get('/todos',(req,res) => {
   res.render('todos/index',{
-    todos: todos
+    todos: db.get('todos').value()
   });
 });
 
@@ -45,8 +49,8 @@ app.get('/todos/create',(req,res)=>{
 })
 
 app.post('/todos/create',(req,res)=>{
-  todos.push(req.body);
-  res.redirect('back');
+  db.get('todos').push(req.body).write();
+  res.redirect('/todos');
 })
         
 app.listen(process.env.PORT, () => {
